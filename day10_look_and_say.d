@@ -2,40 +2,121 @@
 name "aoc10"
 +/
 
-pure @safe nothrow ubyte[] next(ubyte[] digits) {
-  ubyte counted = 0;
-  ubyte count = 0;
+import std.typecons : tuple;
 
-  ubyte[] result;
-
-  foreach (digit; digits ~ [cast(ubyte)(0)]) {
-    if (digit == counted) {
-      ++count;
-    } else {
-      if (count > 0) {
-        result ~= [count, counted];
-      }
-      counted = digit;
-      count = 1;
-    }
-  }
-
-  return result;
-}
+static immutable elements = [
+  tuple("1112"                                      , [62]                    ),
+  tuple("1112133"                                   , [63, 61]                ),
+  tuple("111213322112"                              , [64]                    ),
+  tuple("111213322113"                              , [65]                    ),
+  tuple("1113"                                      , [67]                    ),
+  tuple("11131"                                     , [68]                    ),
+  tuple("111311222112"                              , [83, 54]                ),
+  tuple("111312"                                    , [69]                    ),
+  tuple("11131221"                                  , [70]                    ),
+  tuple("1113122112"                                , [75]                    ),
+  tuple("1113122113"                                , [76]                    ),
+  tuple("11131221131112"                            , [81]                    ),
+  tuple("111312211312"                              , [77]                    ),
+  tuple("11131221131211"                            , [78]                    ),
+  tuple("111312211312113211"                        , [79]                    ),
+  tuple("111312211312113221133211322112211213322112", [80, 28, 89]            ),
+  tuple("111312211312113221133211322112211213322113", [80, 28, 90]            ),
+  tuple("11131221131211322113322112"                , [80, 29]                ),
+  tuple("11131221133112"                            , [74, 28, 91]            ),
+  tuple("1113122113322113111221131221"              , [74, 31]                ),
+  tuple("11131221222112"                            , [71]                    ),
+  tuple("111312212221121123222112"                  , [72]                    ),
+  tuple("111312212221121123222113"                  , [73]                    ),
+  tuple("11132"                                     , [82]                    ),
+  tuple("1113222"                                   , [85]                    ),
+  tuple("1113222112"                                , [86]                    ),
+  tuple("1113222113"                                , [87]                    ),
+  tuple("11133112"                                  , [88, 91]                ),
+  tuple("12"                                        , [0]                     ),
+  tuple("123222112"                                 , [2]                     ),
+  tuple("123222113"                                 , [3]                     ),
+  tuple("12322211331222113112211"                   , [1, 60, 28, 84]         ),
+  tuple("13"                                        , [4]                     ),
+  tuple("131112"                                    , [27]                    ),
+  tuple("13112221133211322112211213322112"          , [23, 32, 60, 28, 89]    ),
+  tuple("13112221133211322112211213322113"          , [23, 32, 60, 28, 90]    ),
+  tuple("13122112"                                  , [6]                     ),
+  tuple("132"                                       , [7]                     ),
+  tuple("13211"                                     , [8]                     ),
+  tuple("132112"                                    , [9]                     ),
+  tuple("1321122112"                                , [20]                    ),
+  tuple("132112211213322112"                        , [21]                    ),
+  tuple("132112211213322113"                        , [22]                    ),
+  tuple("132113"                                    , [10]                    ),
+  tuple("1321131112"                                , [18]                    ),
+  tuple("13211312"                                  , [11]                    ),
+  tuple("1321132"                                   , [12]                    ),
+  tuple("13211321"                                  , [13]                    ),
+  tuple("132113212221"                              , [14]                    ),
+  tuple("13211321222113222112"                      , [17]                    ),
+  tuple("1321132122211322212221121123222112"        , [15]                    ),
+  tuple("1321132122211322212221121123222113"        , [16]                    ),
+  tuple("13211322211312113211"                      , [19]                    ),
+  tuple("1321133112"                                , [5, 60, 28, 91]         ),
+  tuple("1322112"                                   , [25]                    ),
+  tuple("1322113"                                   , [26]                    ),
+  tuple("13221133112"                               , [24, 28, 91]            ),
+  tuple("1322113312211"                             , [24, 28, 66]            ),
+  tuple("132211331222113112211"                     , [24, 28, 84]            ),
+  tuple("13221133122211332"                         , [24, 28, 67, 60, 28, 88]),
+  tuple("22"                                        , [60]                    ),
+  tuple("3"                                         , [32]                    ),
+  tuple("3112"                                      , [39]                    ),
+  tuple("3112112"                                   , [40]                    ),
+  tuple("31121123222112"                            , [41]                    ),
+  tuple("31121123222113"                            , [42]                    ),
+  tuple("3112221"                                   , [37, 38]                ),
+  tuple("3113"                                      , [43]                    ),
+  tuple("311311"                                    , [47]                    ),
+  tuple("31131112"                                  , [53]                    ),
+  tuple("3113112211"                                , [48]                    ),
+  tuple("3113112211322112"                          , [49]                    ),
+  tuple("3113112211322112211213322112"              , [50]                    ),
+  tuple("3113112211322112211213322113"              , [51]                    ),
+  tuple("311311222"                                 , [46, 37]                ),
+  tuple("311311222112"                              , [46, 54]                ),
+  tuple("311311222113"                              , [46, 55]                ),
+  tuple("3113112221131112"                          , [46, 56]                ),
+  tuple("311311222113111221"                        , [46, 57]                ),
+  tuple("311311222113111221131221"                  , [46, 58]                ),
+  tuple("31131122211311122113222"                   , [46, 59]                ),
+  tuple("3113112221133112"                          , [46, 32, 60, 28, 91]    ),
+  tuple("311312"                                    , [44]                    ),
+  tuple("31132"                                     , [45]                    ),
+  tuple("311322113212221"                           , [52]                    ),
+  tuple("311332"                                    , [37, 28, 88]            ),
+  tuple("3113322112"                                , [37, 29]                ),
+  tuple("3113322113"                                , [37, 30]                ),
+  tuple("312"                                       , [33]                    ),
+  tuple("312211322212221121123222112"               , [34]                    ),
+  tuple("312211322212221121123222113"               , [35]                    ),
+  tuple("32112"                                     , [36]                    ),
+];
 
 void main(string[] args) {
-  import std.algorithm : map;
+  import std.algorithm : countUntil, map, sum;
   import std.array : array;
+  import std.range : recurrence, take;
   import std.stdio : writeln;
 
   immutable string input = args.length <= 1 ? "12" : args[1];
+  immutable i = elements.countUntil!("a[0] == b")(input);
 
-  ubyte[] digits = array(input.map!(e => cast(ubyte)(e - '0')));
+  ulong[] initial = array(elements.map!(e => e[0].length));
+  auto sizes_rec = recurrence!((a, n) => array(elements.map!(e => e[1].map!(b => a[n - 1][b]).sum)))(initial);
 
-  foreach (n; [40, 10]) {
-    for (int j = 0; j < n; ++j) {
-      digits = next(digits);
-    }
-    writeln(digits.length);
+  // 156 is the largest number that doesn't cause length to exceed 2**63-1
+  // 159 is the largest number that doesn't cause length to exceed 2**64-1
+  ulong[][] sizes = array(sizes_rec.take(160));
+
+  //foreach (n; [40, 50, 156, 159]) {
+  foreach (n; [40, 50]) {
+    writeln(sizes[n][i]);
   }
 }
