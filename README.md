@@ -8,14 +8,29 @@ All solutions are written in D.
 
 # Input
 
-All inputs are hard-coded, with no file input capabilities.
+In general, all solutions can be invoked in both of the following ways:
 
-Advantages:
+* Without command-line arguments, takes input on standard input.
+* With 1+ command-line arguments, reads input from the first, which must be the path to an input file.
+  Arguments beyond the first are ignored.
 
-  * No need to deal with reading input from a file, etc.
-  * Can take advantage of `dub test`.
+Some may additionally support other ways:
+
+None yet.
+
+## DUB
+
+DUB is used to build the library functions common to all days, but each day is its own [single-file package](https://code.dlang.org/getting_started#single-file-packages).
+The alternative would have to been to have the entire thing be a single DUB library, taking advantage of D's native `unittest` functionality.
+
+Advantages of doing it this way:
+
+  * It can be useful to have example code to do file I/O (turns out it's pretty simple in D).
+  * Fairer runtime timing comparisons against other languages. If inputs are known at compile-time, the compiler may pre-compute some values before runtime.
+  * Failure messages of D's native `unittest`, being `assert`s, are not particularly helpful in saying what failed (no expected/observed values, etc.); `diff` makes it clear what failed.
+  * Flexibility: A built binary may be run against many users' inputs, instead of only some specific hard-coded inputs.
 
 Diadvantages:
 
-  * Might make timing comparisons against other languages unfair, since the compiler may be able to pre-compute some values from knowing the inputs at compile-time.
-  * Knowing how to do file I/O is an important part of a language.
+  * Can't take advantage of `dub test`.
+  * Extra boilerplate per file (`dub.sdl` comment header, `main` that reads input file).
