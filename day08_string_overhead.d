@@ -19,12 +19,9 @@ unittest {
 }
 
 pure @safe ulong encodedOverhead(string s) {
-  import std.string : countchars;
+  import std.algorithm : count;
 
-  // The type of this is curious. Regex isn't accepted.
-  // But the | works, so it's like a regex?
-  // The docs just say isSomeString!(s) for it.
-  return 2 + s.countchars("\"|\\");
+  return 2 + s.count!(`a == '"' || a == '\\'`);
 }
 
 void main(string[] args) {
