@@ -33,7 +33,8 @@ ushort value(const Wire[string] circuit, string wire, ushort[string] cache) {
 
   return cache[wire] = circuit[wire].visit!(
     (Input i) => input(i),
-    (Tuple!(bool, Input) unop) => ~input(unop[1]),
+    // https://dlang.org/changelog/2.078.0.html#fix16997 ???
+    (Tuple!(bool, Input) unop) => cast(ushort)((~cast(int)(input(unop[1])))),
     delegate ushort(Tuple!(string, Input, Input) binop) {
       ushort v1 = input(binop[1]);
       ushort v2 = input(binop[2]);
