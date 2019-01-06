@@ -174,6 +174,10 @@ class Search {
   pure @safe uint bestFrom(const Game game, const Spell[] spellsSoFar, uint costSoFar, uint turn) {
     import std.algorithm : fold, map, min;
 
+    if (bestCost <= costSoFar) {
+      return uint.max;
+    }
+
     if (game in seen && seen[game] <= costSoFar) {
       return uint.max;
     }
