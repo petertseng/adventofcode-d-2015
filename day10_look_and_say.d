@@ -3,12 +3,21 @@ name "aoc10"
 +/
 
 pure @safe nothrow ubyte[] next(ubyte[] digits) {
-  import std.algorithm : group;
+  ubyte counted = 0;
+  ubyte count = 0;
 
   ubyte[] result;
-  // Wonder if there's any better way to flatten?
-  foreach (elt, count; digits.group()) {
-    result ~= [cast(ubyte)(count), elt];
+
+  foreach (digit; digits ~ [cast(ubyte)(0)]) {
+    if (digit == counted) {
+      ++count;
+    } else {
+      if (count > 0) {
+        result ~= [count, counted];
+      }
+      counted = digit;
+      count = 1;
+    }
   }
 
   return result;
