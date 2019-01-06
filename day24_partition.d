@@ -20,19 +20,9 @@ pure @safe nothrow size_t minNeeded(const ulong[] weights, ulong target) {
   return weights.length;
 }
 
-// https://rosettacode.org/wiki/Combinations#More_Functional_Recursive_Version
-// I picked this one because it was short.
-pure @safe nothrow immutable(ulong)[][] combinations(const ulong[] s, size_t m) {
-  import std.algorithm : map;
-  import std.array : array;
-
-  if (!m) return [[]];
-  if (s.length == 0) return [];
-  return s[1 .. $].combinations(m - 1).map!(x => s[0] ~ x).array ~ s[1 .. $].combinations(m);
-}
-
 pure @safe immutable(ulong)[] partition(const ulong[] weights, uint numGroups) {
   import std.algorithm : sum;
+  import combinations : combinations;
 
   ulong total = weights.sum;
   ulong eachGroup = total / numGroups;
