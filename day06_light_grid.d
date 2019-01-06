@@ -20,30 +20,26 @@ void main(string[] args) {
   uint[1000][1000] onOff, bright;
 
   foreach (Command c; commands) {
-    uint function(uint x) onOffFn;
-    uint function(uint x) brightFn;
-
-    switch (c.command.length) {
-    case 1:
-      onOffFn = (_) { return 1; };
-      brightFn = (x) { return x + 1; };
-      break;
-    case 2:
-      onOffFn = (_) { return 0; };
-      brightFn = (x) { return x == 0 ? 0 : x - 1; };
-      break;
-    case 4:
-      onOffFn = (x) { return 1 - x; };
-      brightFn = (x) { return x + 2; };
-      break;
-    default:
-      throw new Exception("unknown command: " ~ c[0] ~ "o" ~ c.command);
-    }
-
     foreach (int y; c.ymin .. c.ymax + 1) {
       foreach (int x; c.xmin .. c.xmax + 1) {
-        onOff[y][x] = onOffFn(onOff[y][x]);
-        bright[y][x] = brightFn(bright[y][x]);
+        switch (c.command.length) {
+        case 1:
+          onOff[y][x] = 1;
+          bright[y][x] += 1;
+          break;
+        case 2:
+          onOff[y][x] = 0;
+          if (bright[y][x] > 0) {
+            bright[y][x] -= 1;
+          }
+          break;
+        case 4:
+          onOff[y][x] = 1 - onOff[y][x];
+          bright[y][x] += 2;
+          break;
+        default:
+          throw new Exception("unknown command: " ~ c[0] ~ "o" ~ c.command);
+        }
       }
     }
   }
