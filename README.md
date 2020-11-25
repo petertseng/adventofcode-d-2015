@@ -3,6 +3,8 @@
 These are my solutions to http://adventofcode.com
 
 All solutions are written in D.
+Originally written in July 2017, during which point 2.074.1 would have been available.
+Have been checked for deprecation warnings up through 2.098.0, though other possible code improvements in the meantime have not necessarily been noticed.
 
 [![Build Status](https://travis-ci.org/petertseng/adventofcode-d-2015.svg?branch=master)](https://travis-ci.org/petertseng/adventofcode-d-2015)
 
