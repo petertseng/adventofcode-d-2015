@@ -17,34 +17,29 @@ void main(string[] args) {
   Trip t2 = Trip([Coord(), Coord()], [Coord(0, 0): true]);
 
   foreach (size_t i, char c; arrows) {
-    Coord* santa1 = &t1.santas[0];
-    Coord* santa2 = &t2.santas[i % 2];
-
-    switch (c) {
-    case '>':
-      santa1.x += 1;
-      santa2.x += 1;
-      break;
-    case '<':
-      santa1.x -= 1;
-      santa2.x -= 1;
-      break;
-    case '^':
-      santa1.y += 1;
-      santa2.y += 1;
-      break;
-    case 'v':
-      santa1.y -= 1;
-      santa2.y -= 1;
-      break;
-    case '\n':
-      break;
-    default:
-      writeln("Unknown character " ~ c);
-      break;
+    foreach (Trip t; [t1, t2]) {
+      Coord* santa = &t.santas[i % t.santas.length];
+      switch (c) {
+      case '>':
+        santa.x += 1;
+        break;
+      case '<':
+        santa.x -= 1;
+        break;
+      case '^':
+        santa.y += 1;
+        break;
+      case 'v':
+        santa.y -= 1;
+        break;
+      case '\n':
+        break;
+      default:
+        writeln("Unknown character " ~ c);
+        break;
+      }
+      t.visited[*santa] = true;
     }
-    t1.visited[*santa1] = true;
-    t2.visited[*santa2] = true;
   }
 
   writeln(t1.visited.length);
