@@ -2,88 +2,48 @@
 name "aoc20"
 +/
 
-pure @safe nothrow uint gifts(uint house, uint elfLimit) {
-  uint given = 0;
-  for (uint i = 1; i * i <= house; ++i) {
-    if (house % i != 0) {
-      continue;
-    }
-    uint factor1 = i;
-    uint factor2 = house / i;
-    if (elfLimit == 0 || factor2 < elfLimit) {
-      given += factor1;
-    }
-    if (factor1 != factor2 && (elfLimit == 0 || factor1 < elfLimit)) {
-      given += factor2;
-    }
+immutable uint[15] PRIMES = [47, 43, 41, 39, 31, 29, 23, 19, 17, 13, 11, 7, 5, 3, 2];
+
+// askalski's tip
+// https://www.reddit.com/r/adventofcode/comments/po1zel/comment/hd1esc2
+pure @safe nothrow uint sumExceeds(uint goal, uint primeIdx, uint[uint] cache) {
+  import std.algorithm : min;
+
+  if (primeIdx >= PRIMES.length) {
+    return goal;
   }
-  return given;
+
+  uint cacheKey = goal * cast(uint) PRIMES.length + primeIdx;
+  if (cacheKey in cache) {
+    return cache[cacheKey];
+  }
+
+  uint prime = PRIMES[primeIdx];
+  uint primePower = 1;
+  uint primeSum = 1;
+
+  uint best = sumExceeds(goal, primeIdx + 1, cache);
+
+  while (primeSum < goal) {
+    primePower *= prime;
+    primeSum += primePower;
+
+    // subproblem: ceil(goal/prime_sum) using only primes less than prime
+    uint subgoal = (goal + primeSum - 1) / primeSum;
+    best = min(best, primePower * sumExceeds(subgoal, primeIdx + 1, cache));
+  }
+
+  return best;
 }
 
-pure @safe nothrow uint houseUpperBound(uint target, uint elfLimit) {
-  // smallest greater factorial:
-  uint bound = 2;
-  uint n = 2;
-  while (gifts(bound, elfLimit) < target) {
-    n += 1;
-    bound *= n;
-  }
-
-  // Decrease each factor
-  for (uint from = n; from > 1; --from) {
-    uint boundWithout = bound / from;
-    for (uint to = 1; to < from; ++to) {
-      uint boundWith = boundWithout * to;
-      if (gifts(boundWith, elfLimit) >= target) {
-        bound = boundWith;
-        break;
-      }
+pure @safe nothrow bool good2(uint house, uint target) {
+  uint elves = 0;
+  for (uint div = 1; div <= 50; div++) {
+    if (house % div == 0) {
+      elves += house / div;
     }
   }
-
-  return bound;
-}
-
-pure @safe houseLowerBound(uint target) {
-  // Euler-Mascheroni constant
-  static enum real gamma = 0.57721566490153286060651209008240243104215933593992;
-
-  import std.conv : to;
-  import std.math : ceil, exp, log;
-
-  // Robin's inequality:
-  // \sigma(n) < e^\gamma n \log \log n
-  // n \log \log n > \frac{T}{e^\gamma}
-  // lower bound, so \log \log n can be increased to \log \log T
-  // n > \frac{T}{e^\gamma \log \log T}
-
-  uint n = to!uint(ceil(target / (exp(gamma) * log(log(target)))));
-
-  // TODO: This was approximate (since we changed an n for T) and we can do better,
-  // but the improvement is unlikely to be significant (704242 -> 733346, 641725 -> 668446).
-
-  // Robin's inequality doesn't hold for n <= 5040.
-  return n > 5040 ? n : 1;
-}
-
-pure @safe uint firstHouse(uint target, uint perElf, uint elfLimit) {
-  uint elfFactorNeeded = target / perElf;
-  uint lowerBound = houseLowerBound(elfFactorNeeded);
-  uint upperBound = houseUpperBound(elfFactorNeeded, elfLimit);
-  uint[] presents = new uint[upperBound + 1 - lowerBound];
-
-  for (uint elf = 1; elf <= upperBound; ++elf) {
-    uint skipped = elf < lowerBound ? (lowerBound - 1) / elf : 0;
-    for (uint mult = skipped + 1; elf * mult <= upperBound && (elfLimit == 0 || mult < elfLimit); ++mult) {
-      uint house = elf * mult;
-      presents[house - lowerBound] += elf;
-      if (mult == 1 && presents[house - lowerBound] >= elfFactorNeeded) {
-        return house;
-      }
-    }
-  }
-
-  return 0;
+  return 11 * elves >= target;
 }
 
 void main(string[] args) {
@@ -94,6 +54,14 @@ void main(string[] args) {
 
   uint target = to!uint(args.length <= 1 ? strip(readText("/dev/stdin")) : args[1]);
 
-  writeln(firstHouse(target, 10, 0));
-  writeln(firstHouse(target, 11, 50));
+  uint[uint] cache;
+  uint house1 = sumExceeds(target / 10, 0, cache);
+  writeln(house1);
+
+  for (uint i = good2(house1, target) ? 0 : house1; i < target; i += 2 * 3 * 5 * 7) {
+    if (good2(i, target)) {
+      writeln(i);
+      return;
+    }
+  }
 }
